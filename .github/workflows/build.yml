@@ -1,4 +1,3 @@
-
 name: Build Apgreider APK
 
 on:
@@ -6,6 +5,7 @@ on:
   push:
     paths:
       - '**.zip'
+      - 'apgreider-upgrade-v5.html'
       - '.github/workflows/build.yml'
 
 jobs:
@@ -23,9 +23,12 @@ jobs:
             echo "Archive not found!"
             exit 1
           fi
-          echo "Found: $ZIP_FILE"
           mkdir extracted
           unzip -o "$ZIP_FILE" -d extracted
+
+      - name: Replace app with V5
+        run: |
+          cp apgreider-upgrade-v5.html extracted/apgreider_android/app/src/main/assets/index.html
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -44,6 +47,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Apgreider-APK
+          name: Apgreider-V5-APK
           path: extracted/apgreider_android/app/build/outputs/apk/debug/app-debug.apk
-          
