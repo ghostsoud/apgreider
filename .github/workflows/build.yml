@@ -1,11 +1,11 @@
-name: Build Apgreider APK
+name: Build Apgreider V5 APK
 
 on:
   workflow_dispatch:
   push:
     paths:
       - '**.zip'
-      - 'apgreider-upgrade-v5.html'
+      - 'app/src/main/assets/index.html'
       - '.github/workflows/build.yml'
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
       - name: Download project files
         uses: actions/checkout@v4
 
-      - name: Find and extract project
+      - name: Extract Android project
         run: |
           ZIP_FILE=$(find . -maxdepth 1 -type f -iname 'ApgreiderAndroid-project*.zip' | head -n 1)
           if [ -z "$ZIP_FILE" ]; then
@@ -26,9 +26,9 @@ jobs:
           mkdir extracted
           unzip -o "$ZIP_FILE" -d extracted
 
-      - name: Replace app with V5
+      - name: Install V5 HTML
         run: |
-          cp apgreider-upgrade-v5.html extracted/apgreider_android/app/src/main/assets/index.html
+          cp app/src/main/assets/index.html extracted/apgreider_android/app/src/main/assets/index.html
 
       - name: Set up Java
         uses: actions/setup-java@v4
