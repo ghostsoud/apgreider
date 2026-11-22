@@ -5,31 +5,45 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'ApgreiderAndroid-project.zip'
+      - '**.zip'
       - '.github/workflows/build.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Download project files
+        uses: actions/checkout@v4
 
-      - name: Extract project
-        run: unzip -o ApgreiderAndroid-project.zip -d extracted
+      - name: Find and extract project
+        run: |
+          ZIP_FILE=$(find . -maxdepth 1 -type f -iname 'ApgreiderAndroid-project*.zip' | head -n 1)
+          if [ -z "$ZIP_FILE" ]; then
+            echo "Archive not found!"
+            exit 1
+          fi
+          echo "Found: $ZIP_FILE"
+          mkdir extracted
+          unzip -o "$ZIP_FILE" -d extracted
 
-      - uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
       - name: Build APK
         run: gradle -p extracted/apgreider_android assembleDebug
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: Apgreider-APK
           path: extracted/apgreider_android/app/build/outputs/apk/debug/app-debug.apk
+          
